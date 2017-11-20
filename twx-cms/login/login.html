@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Login</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script type="application/x-javascript">
+		addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); }
+	</script>
+	<meta name="keywords" content="Flat Dark Web Login Form Responsive Templates, Iphone Widget Template, Smartphone login forms,Login form, Widget Template, Responsive Templates, a Ipad 404 Templates, Flat Responsive Templates"
+	/>
+	<link href="css/style.css" rel='stylesheet' type='text/css' />
+	<!--//webfonts-->
+</head>
+
+<body>
+	<!--SIGN UP-->
+	<div class="login-form">
+		<div class="head-info">
+			<label class="lbl-1"></label><span id="tips"></span>
+		</div>
+
+		<div class="close" onClick={closeWid()}> </div>
+		<div class="set" onClick={openSet()}> </div>
+		<div class="clear"> </div>
+		<div class="avtar">
+			<img src="images/avtar.png" />
+		</div>
+		<input id='uname' type="text" class="text" value="请输入用户名" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Username';}">
+		<div class="key">
+			<input id='upassword' type="password" value="" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}">
+		</div>
+		<div class="signin">
+			<input type="submit" id='submit' value="登录" disabled onClick={login()}>
+		</div>
+	</div>
+</body>
+<script>
+	const { ipcRenderer } = require('electron')
+	let dom = document.getElementsByClassName("lbl-1")[0];
+	let btn = document.getElementById("submit");
+	const Store = window.require('electron-store')
+    const store = new Store()
+	let server = store.get('server');
+	let server_port = store.get('server-port');
+	if (server != null && server_port != null) {
+		fetch(`http://${server}:${server_port}/cms/public/test`).
+			then(
+			resq => resq.json()
+			).then(
+			resqjson => {
+				if (resqjson.code == 1) {
+					dom.style.background = '#3ea751';
+					btn.removeAttribute('disabled');
+					document.getElementById("tips").innerText = "";
+				} else {
+					dom.style.background = '#dd3e3e';
+					document.getElementById("tips").innerText = "服务器连接失败，无法登陆";
+				}
+			}
+			)
+			.catch(
+			error => {
+				console.log(error)
+				dom.style.background = '#dd3e3e';
+				document.getElementById("tips").innerText = "服务器连接失败，无法登陆";
+			}
+			)
+	} else {
+		alert('请先配置服务器参数')
+	}
+
+	function login() {
+		fetch(`http://${server}:${server_port}/cms/public/login`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: 'uname=' + document.getElementById('uname').value + '&upassword=' + document.getElementById('upassword').value
+		}).then(
+			resq => resq.json()
+		).then(
+			resqjson => {
+				if (resqjson.code == 1) {
+					ipcRenderer.send('login', {status:true,info:resqjson.info})
+				} else {
+					alert(resqjson.msg)
+				}
+			}
+		).catch(
+			error => {
+				alert(error)
+			}
+		)
+	}
+
+	function closeWid() {
+		ipcRenderer.send('closeLogin', true)
+	}
+	function openSet() {
+		ipcRenderer.send('openSet', true)
+	}
+
+</script>
+
+</html>

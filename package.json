@@ -1,0 +1,12 @@
+{
+    "name": "myapp",
+    "version": "1.0.7",
+    "main": "main.js",
+    "description": "my app",
+    "scripts": {
+        "start": "electron ."
+    },
+    "dependencies": {
+        "electron-squirrel-startup": "^1.0.0"
+    }
+}

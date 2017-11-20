@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>设置</title>
+    <link href="css/setStyle.css" rel='stylesheet' type='text/css' />
+</head>
+
+<body>
+    <div style="padding: 5px">
+        <div style="margin-top:20px">
+            <div class="margin left" style="float:left">
+                <span class="title">服务器：</span><input type='text' id="server" value=""/>
+            </div>
+            <div class="margin right" style="float:right">
+                <span class="title">端口：</span><input type='text' id="server-port" value=""/>
+            </div>
+            <!-- <label class="lbl-1"> </label> -->
+        </div>
+        <div>
+            <div class="margin left" style="float:left">
+                <span class="title">socket地址：</span><input 
+                id='socket-server' type='text' />
+            </div>
+            <div class="margin right" style="float:right">
+                <span class="title">端口：</span><input type='text' 
+                id='socket-server-port'/>
+            </div>
+            <!-- <label class="lbl-1"> </label> -->
+        </div>
+    </div>
+    <input type="button" class='btn-left' onClick={test()} value="测试"/>
+    <input type="button" class='btn-right' onClick={save()} value="保存"/>
+    </div>
+    </div>
+
+</body>
+<script>
+    const Store = window.require('electron-store')
+    const store = new Store()
+    var server = store.get('server');
+    var server_port = store.get('server-port');
+    var socket_server = store.get('socket-server');
+    var socket_server_port = store.get('socket-server-port');
+
+    var server_dom = document.getElementById('server');
+    var server_port_dom = document.getElementById('server-port');
+    var socket_server_dom = document.getElementById('socket-server');
+    var socket_server_port_dom = document.getElementById('socket-server-port');
+
+    let dom = document.getElementsByClassName("btn-left")[0]
+    const {ipcRenderer} = require('electron')
+
+    if (server != null){
+        server_dom.value=server;
+    }
+    if (server_port != null){
+        server_port_dom.value = server_port;
+    }
+    if (socket_server != null){
+        socket_server_dom.value=socket_server;
+    }
+    if (socket_server_port != null){
+        socket_server_port_dom.value = socket_server_port;
+    }
+    function save(){
+        if (server_dom.value != ""){
+            store.set('server',server_dom.value)
+        }
+        if (server_port_dom.value != ""){
+            store.set('server-port',server_port_dom.value)
+        }
+        if (socket_server_dom.value != ""){
+            store.set('socket-server',socket_server_dom.value)
+        }
+        if (socket_server_port_dom.value != ""){
+            store.set('socket-server-port',socket_server_port_dom.value)
+        }
+        ipcRenderer.send('closeSet', true);
+        ipcRenderer.send('reloadLogin', true);
+    }
+    function test(){
+        if (server_dom.value != null && server_port_dom.value != null){
+            fetch(`http://${server_dom.value}:${server_port_dom.value}/cms/public/test`)
+            .then(
+				resq=>resq.json()
+			).then(
+				resqjson=>{
+					if(resqjson.code==1){
+                        dom.value = '测试成功';
+                        dom.style.background="#3ea751";
+                        
+					}else{
+                        dom.value = '连接失败';
+                        dom.style.background="#ff2775";
+					}
+				}
+			)
+			.catch(
+				error=>{
+                    dom.value = '连接失败';
+                    dom.style.background="#ff2775";
+				}
+			)
+		}else{
+			alert('请先配置服务器参数')
+		}
+    }
+</script>
+</html>
